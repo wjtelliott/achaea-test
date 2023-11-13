@@ -1,3 +1,6 @@
+-- todo: delete this file. use the src/ directory instead
+
+
 require('unknown') -- unknown functions, probably from the mudlet api
 require('pipeline') -- foundation logic
 require('util') -- util helpers
