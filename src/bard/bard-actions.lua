@@ -66,9 +66,56 @@ local selectTunesmith = endAction(
   end
 )
 
-local setupVenomJab = function()
-  print('setup venom jab')
-end
+local setupVenomJab = endAction(function(ctx)
+  local function applyVenom(venom)
+    return function() ctx.data.v1 = ctx.Kai.venom[venom] end
+  end
+  local reqO = ctx.data.reqOther -- ? who knows what this is
+  local function reqClumsiness()
+    return reqO == "clumsiness" or reqO == "clumsy"
+  end -- ? who knows what this is
+  local function reqWeariness()
+    return reqO == "weariness" or reqO == "weary"
+  end -- ? who knows what this is
+  local function shouldApplyDisloyaltyToClass()
+    return ctx.data.enClass == "Occultist" or ctx.data.enClass == "Druid" or ctx.data.enClass == "Unnamable" or ctx.data.enClass == "Sentinal"
+  end
+  local hasHighAsthma = ctx.aff.asthma >= 66
+  local hasAsthma = ctx.aff.asthma >= 60
+  local notHasAsthma = ctx.aff.asthma < 100
+  local impatienceValue = ctx.aff.impatience
+  local slicknessValue = ctx.aff.slickness
+  local anorexiaValue = ctx.aff.anorexia
+  local hasStupidity = ctx.aff.stupidity >= 50
+  local enprio = ctx.data.enprio -- ? who knows what this is
+  local impatienceBeforeAsthma = table.index_of(enprio, "impatience") < table.index_of(enprio, "asthma")
+  local asthmaBeforeImpatience = table.index_of(enprio, "asthma") < table.index_of(enprio, "impatience")
+  local clumsyOrWeary = aff.clumsiness >= 33 or aff.weariness >= 50
+  local hasTarget = ctx.data.reqOther ~= ""
+  local targetAfflictionValue = ctx.aff[reqO]
+  local hasTargetVenom = table.contains(ctx.Kai.venom, reqO)
+  local clumsinessValue = ctx.aff.clumsiness
+  local paralysisValue = ctx.aff.paralysis
+  local disloyaltyValue = ctx.aff.disloyalty
+  local wearinessValue = ctx.aff.weariness
+
+  switchCase({
+    { hasAsthma and impatienceValue > 60 and slicknessValue >= 50 and anorexiaValue < 50, applyVenom("anorexia") },
+    { hasHighAsthma and slicknessValue < 50 and impatienceValue >= 66, applyVenom("slickness") },
+    { anorexiaValue >= 60 and slicknessValue < 100 and slicknessValue ~= 50 and hasAsthma, applyVenom("slickness") },
+    { slicknessValue >= 50 and anorexiaValue < 100 and hasAsthma and impatienceValue > 66, applyVenom("anorexia") },
+    { impatienceValue >= 60 and not hasStupidity and impatienceBeforeAsthma, applyVenom("stupidity") },
+    { clumsyOrWeary and notHasAsthma, applyVenom("asthma") },
+    { asthmaBeforeImpatience and wearinessValue < 100, applyVenom("weariness") },
+    { hasTarget and targetAfflictionValue < 50 and hasTargetVenom, applyVenom(reqO) },
+    { reqClumsiness() and clumsinessValue < 66, applyVenom("clumsiness") },
+    { paralysisValue <= 50 and impatienceValue < 100, applyVenom("paralysis") },
+    { disloyaltyValue < 33 and shouldApplyDisloyaltyToClass(), applyVenom("disloyalty") },
+    { reqWeariness() and wearinessValue < 66, applyVenom("weariness") },
+    { notHasAsthma and (not reqWeariness() or wearinessValue >= 66), applyVenom("asthma") },
+    { paralysisValue < 50, applyVenom("paralysis") }
+  })
+end)
 local setupSongJab = function()
   print('setup song jab')
 end
@@ -79,11 +126,22 @@ end
 local lockRoute = endAction(
   function(ctx)
     local action = ctx.data.getNextAction(ctx.data.nextSong, ctx.data.nextJab)
+    local function runVenomJab()
+      setupVenomJab()(ctx)
+    end
+    local function runSongJob()
+      setupSongJab()(ctx)
+    end
+    local function runBoth()
+      runVenomJab()
+      runSongJob()
+    end
     switchCase({
-      { action == 'jab', setupVenomJab },
-      { action == 'song', setupSongJab },
-      { action == 'both', function() setupVenomJab() setupSongJab() end },
-      { true, function() print('unknown action:', action) setupDefault() end }
+      { action == 'jab', runVenomJab },
+      { action == 'song', runSongJob },
+      { action == 'both', runBoth },
+      -- we don't need this below, but just in case
+      { true, function() print('unknown action:', action) print('not implemented -> default') end }
     })
   end
 )

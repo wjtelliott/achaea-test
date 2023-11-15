@@ -20,6 +20,28 @@ local function switchCase(cases)
   end
 end
 
+local function afflictionValueRanges()
+  local function values(valueToCheck)
+    return function(actual)
+      return {
+        isLessThan = function() return actual < valueToCheck end,
+        isGreaterThan = function() return actual > valueToCheck end,
+        isEqualTo = function() return actual == valueToCheck end,
+        isEqualOrGreater = function() return actual >= valueToCheck end,
+        isEqualOrLess = function() return actual <= valueToCheck end,
+      }
+    end
+  end
+  return {
+    unlikelyChance = values(33),
+    halfChance = values(50),
+    likelyChance = values(60),
+    veryLikelyChance = values(66),
+    certainChance = values(100),
+  }
+end
+
 return {
-  switchCase = switchCase
+  switchCase = switchCase,
+  afflictionValueRanges = afflictionValueRanges
 }

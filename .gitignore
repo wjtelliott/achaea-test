@@ -1,3 +1,5 @@
 // original scripts
 unmodified/
 bin/
+*.dll
+*.exe

@@ -40,20 +40,23 @@ local setReqOther,
   actions.lockRoute
 
 -- bard entry point
-pipe(
-  ifNotThe(playerIsClass('Bard'))(breakPipe()),
-  ifNotThe(reqOtherIsEmpty())(setReqOther()),
-  initBard(),
-  selectTunesmith(),
-  ifTheElse(opponentIsLocked())({
-    actions = { log('opp is locked'), lockedRoute() },
-    elseActions = { log('opponent is not locked'), lockRoute() }
-  }),
-  queueingLogic(),
-  ifTheElse(salveLock())({
-    actions = { log('salve lock logic') },
-    elseActions = { log('not salve lock logic') }
-  }),
-  ifThe(shouldChaseTarget())(chaseTarget()),
-  ifThe(shouldLungeTarget())(lungeTarget())
-)(context)
+return {
+  run = pipe(
+    ifNotThe(playerIsClass('Bard'))(breakPipe()),
+    ifNotThe(reqOtherIsEmpty())(setReqOther()),
+    initBard(),
+    selectTunesmith(),
+    ifTheElse(opponentIsLocked())({
+      actions = { log('opp is locked'), lockedRoute() },
+      elseActions = { log('opponent is not locked'), lockRoute() }
+    }),
+    queueingLogic(),
+    ifTheElse(salveLock())({
+      actions = { log('salve lock logic') },
+      elseActions = { log('not salve lock logic') }
+    }),
+    ifThe(shouldChaseTarget())(chaseTarget()),
+    ifThe(shouldLungeTarget())(lungeTarget())
+  ),
+  context = context
+}

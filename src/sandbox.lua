@@ -51,6 +51,11 @@ function expect(actual)
       if type(actual) ~= expected then
         error('Expected ' .. actual .. ' to be a type of ' .. expected)
       end
+    end,
+    toContain = function(expected)
+      if not (type(actual) == 'table' and actual[expected] ~= nil) then
+        error('Expected ' .. actual .. ' to contain value ' .. expected)
+      end
     end
   }
 end
