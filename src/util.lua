@@ -52,7 +52,66 @@ local function afflictionValueRanges()
   }
 end
 
+
+-- since i can't believe that the lua standard library doesn't have map, filter, or reduce... here's my own implementations
+-- i'm not sure if i'll use these, but i'm keeping them here for now
+
+local function map(list, callback)
+  local mappedList = {}
+  for _,v in ipairs(list) do
+    table.insert(mappedList, callback(v))
+  end
+  return mappedList
+end
+
+local function filter(list, callback)
+  local filteredList = {}
+  for _,v in ipairs(list) do
+    if callback(v) then table.insert(filteredList, v) end
+  end
+  return filteredList
+end
+
+local function reduce(list, callback, initialValue)
+  local accumulator = initialValue or 0
+  for _,v in ipairs(list) do
+    accumulator = callback(accumulator, v)
+  end
+  return accumulator
+end
+
+-- and heres some for tables:
+local function mapTable(table, callback)
+  local mappedTable = {}
+  for k,v in pairs(table) do
+    mappedTable[k] = callback(v)
+  end
+  return mappedTable
+end
+
+local function filterTable(table, callback)
+  local filteredTable = {}
+  for k,v in pairs(table) do
+    if callback(v) then filteredTable[k] = v end
+  end
+  return filteredTable
+end
+
+local function reduceTable(table, callback, initialValue)
+  local accumulator = initialValue or 0
+  for _,v in pairs(table) do
+    accumulator = callback(accumulator, v)
+  end
+  return accumulator
+end
+
 return {
   switchCase = switchCase,
-  afflictionValueRanges = afflictionValueRanges
+  afflictionValueRanges = afflictionValueRanges,
+  map = map,
+  filter = filter,
+  reduce = reduce,
+  mapTable = mapTable,
+  filterTable = filterTable,
+  reduceTable = reduceTable
 }
