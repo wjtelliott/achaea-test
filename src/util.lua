@@ -20,6 +20,17 @@ local function switchCase(cases)
   end
 end
 
+--[[
+  This function is used to make it easier to write affliction checks.
+  It returns a table with functions that return a table with functions that return booleans.
+  This allows you to write code like this:
+  local afflictionValues = afflictionValueRanges()
+  if afflictionValues.certainChance(asthma).isLessThan() then
+    -- asthma is less than 100
+  end
+
+  Increases readbility but probably might scrap this, depends on how much we use it in the long haul
+]]--
 local function afflictionValueRanges()
   local function values(valueToCheck)
     return function(actual)

@@ -66,6 +66,8 @@ local selectTunesmith = endAction(
   end
 )
 
+
+
 local setupVenomJab = endAction(function(ctx)
   local function applyVenom(venom)
     return function() ctx.data.v1 = ctx.Kai.venom[venom] end
@@ -90,7 +92,7 @@ local setupVenomJab = endAction(function(ctx)
   local enprio = ctx.data.enprio -- ? who knows what this is
   local impatienceBeforeAsthma = table.index_of(enprio, "impatience") < table.index_of(enprio, "asthma")
   local asthmaBeforeImpatience = table.index_of(enprio, "asthma") < table.index_of(enprio, "impatience")
-  local clumsyOrWeary = aff.clumsiness >= 33 or aff.weariness >= 50
+  local clumsyOrWeary = ctx.aff.clumsiness >= 33 or ctx.aff.weariness >= 50
   local hasTarget = ctx.data.reqOther ~= ""
   local targetAfflictionValue = ctx.aff[reqO]
   local hasTargetVenom = table.contains(ctx.Kai.venom, reqO)
@@ -118,9 +120,6 @@ local setupVenomJab = endAction(function(ctx)
 end)
 local setupSongJab = function()
   print('setup song jab')
-end
-local setupDefault = function()
-  print('setup default')
 end
 
 local lockRoute = endAction(
